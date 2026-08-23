@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p>Contributor workspace</p>
+        <h1 class="dashboard-title">Project Pulse</h1>
+        <p>Track the work that is moving the community forward.</p>
+      </header>
+
+      <section aria-labelledby="projects-heading">
+        <div>
+          <h2 id="projects-heading">Active projects</h2>
+          <p id="project-count"></p>
+        </div>
+        <p id="project-status" role="status" aria-live="polite">Loading projects…</p>
+        <div class="project-list" id="project-list" aria-busy="true" aria-describedby="project-status"></div>
+      </section>
+    </main>
+
+    <script>
+      "use strict";
+
+      const projectList = document.getElementById("project-list");
+      const projectStatus = document.getElementById("project-status");
+      const projectCount = document.getElementById("project-count");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function createTextElement(tagName, text, className) {
+        const element = document.createElement(tagName);
+        element.textContent = text;
+        if (className) {
+          element.className = className;
+        }
+        return element;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const header = document.createElement("header");
+        header.className = "card-header";
+        const projectIdentity = document.createElement("div");
+        projectIdentity.append(
+          createTextElement("h3", project.name, "project-name"),
+          createTextElement("p", `Owner: ${project.owner}`, "project-owner")
+        );
+        const status = createTextElement("span", project.status, "badge status-badge");
+        status.setAttribute("data-status", project.status);
+        header.append(projectIdentity, status);
+        card.append(header);
+        card.append(createTextElement("p", project.summary || "No summary available.", "project-summary"));
+
+        const priority = document.createElement("p");
+        priority.className = "priority-indicator";
+        priority.setAttribute("data-priority", project.priority);
+        priority.append(
+          createTextElement("span", "Priority:", "priority-label"),
+          document.createTextNode(project.priority)
+        );
+        card.append(priority);
+
+        const footer = document.createElement("footer");
+        footer.className = "card-footer";
+        footer.append(
+          createTextElement("span", "Recent activity", "recent-activity-label"),
+          createTextElement("span", project.recentActivity, "recent-activity-text")
+        );
+        card.append(footer);
+        return card;
+      }
+
+      function isValidProject(project) {
+        return project !== null &&
+          typeof project === "object" &&
+          requiredFields.every((field) =>
+            typeof project[field] === "string" && project[field].trim().length > 0
+          ) &&
+          (project.summary === undefined || typeof project.summary === "string");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`The project data request failed (${response.status}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must include a projects array.");
+          }
+          if (!data.projects.every(isValidProject)) {
+            throw new Error("One or more projects has incomplete data.");
+          }
+
+          projectList.replaceChildren();
+          projectList.setAttribute("aria-busy", "false");
+
+          if (data.projects.length === 0) {
+            projectCount.textContent = "";
+            projectStatus.textContent = "No projects are available right now. Please check back later.";
+            return;
+          }
+
+          const cards = document.createDocumentFragment();
+          for (const project of data.projects) {
+            cards.append(createProjectCard(project));
+          }
+          projectList.append(cards);
+          projectCount.textContent = `${data.projects.length} projects`;
+          projectStatus.textContent = "Projects loaded.";
+        } catch (error) {
+          projectList.replaceChildren();
+          projectList.setAttribute("aria-busy", "false");
+          projectCount.textContent = "";
+          projectStatus.textContent = "We could not load project data. Please refresh the page and try again.";
+          console.error("Project Pulse data load error:", error);
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

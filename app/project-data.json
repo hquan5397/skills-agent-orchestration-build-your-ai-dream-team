@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Onboarding",
+      "owner": "Amina Patel",
+      "status": "On track",
+      "recentActivity": "Mentor checklist reviewed today",
+      "priority": "High",
+      "summary": "Streamline the first contribution experience with clear setup guidance and starter issues."
+    },
+    {
+      "name": "Release Readiness",
+      "owner": "Jon Bell",
+      "status": "At risk",
+      "recentActivity": "Compatibility test failures triaged yesterday",
+      "priority": "High",
+      "summary": "Coordinate final testing, documentation, and release approvals for the next milestone."
+    },
+    {
+      "name": "Community Insights",
+      "owner": "Sofia Nguyen",
+      "status": "On track",
+      "recentActivity": "July feedback themes shared 2 days ago",
+      "priority": "Medium",
+      "summary": "Turn contributor feedback into a focused set of improvements for the community."
+    },
+    {
+      "name": "Documentation Refresh",
+      "owner": "Marcus Lee",
+      "status": "Blocked",
+      "recentActivity": "Awaiting API examples from the platform team",
+      "priority": "Medium",
+      "summary": "Update core guides and examples so contributors can find accurate answers quickly."
+    }
+  ]
+}
